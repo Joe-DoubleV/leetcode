@@ -198,29 +198,36 @@ class Solution:
         该整数数组原本是按升序排列，但输入时在预先未知的某个点上进行了旋转。（例如，数组[0,1,2,4,5,6,7]可能变为[4,5,6,7,0,1,2] ）。
         请你在数组中搜索target ，如果数组中存在这个目标值，则返回它的索引，否则返回-1
         """
-        '''二分法，时间复杂度：O(logn)，空间复杂度： O(1)
-        注意不是一般的排序数组，而是旋转，因此需要判断边界条件
-        '''
-        left, right = 0, len(nums) - 1
+        '''二分法，时间复杂度：O(log(n))，空间复杂度： O(1)
+        左闭右闭。注意不是一般的排序数组，而是旋转，
+        因此每次确定mid后比较left和right的值确定哪半个区间是排好序的，再分别判断舍弃区间'''
+        left, right = 0, len(nums) - 1      # [left, right]
         if right == -1:
             return -1
         while left < right:
             mid = (left + right) // 2
             # print(left,right,mid)
+            if nums[mid] == target:
+                return mid
             if nums[mid] < target:
                 if nums[left] <= nums[mid]:  # left sored
-                    left = mid + 1  # [mid, right]
-                else:  # right sored
-                    if nums[right] < target:
-                        right = mid
-                    else:
+                    left = mid + 1              # 左半区间是排好序的，可以直接舍弃 [mid+1, right]
+                else:  # right sored            # 左半区间不是排好序的，不可以直接舍弃
+                    if nums[right] < target:    # 右半区间是排好序的，且最大值小于target，右边舍弃
+                        right = mid - 1
+                    else:                       # 右半区间是排好序的，且最大值大于target，左边舍弃
                         left = mid + 1
             else:
-                if nums[left] <= nums[mid]:  # left sored
-                    if nums[left] <= target:
-                        right = mid
-                    else:
+                if nums[left] <= nums[mid]:     # left sored    # 右半区间不是排好序的，不可以直接舍弃
+                    if nums[left] <= target:    # 左半区间是排好序的,最小值小于target，右边舍弃
+                        right = mid - 1         #
+                    else:                       # 左半区间是排好序的,最小值大于target，左边舍弃
                         left = mid + 1
                 else:  # right sored
-                    right = mid
+                    right = mid - 1             # 右半区间是排好序的，可以直接舍弃 [left, right-1]
         return left if nums[left] == target else -1
+
+
+if __name__ == '__main__':
+    s = Solution()
+    print(s.search([5,1,3],3))
