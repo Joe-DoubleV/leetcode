@@ -5,7 +5,12 @@ class Solution:
         一个机器人位于一个 m x n 网格的左上角 （起始点在下图中标记为“Start” ）。
         机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为“Finish”）。
         问总共有多少条不同的路径。"""
-
+        '''动态规划，时间复杂度：O(MN)，空间复杂度：O(MN)
+        m*n大小的数组res用来保存到每一个格子的路径
+        某个格子只能由它上边一个格子或者左边一个的移动而来，即res(i,j) = res(i-1,j) + res(i,j-1)
+        遍历所有格子，最后返回右下角的值就是答案
+        空间复杂度可以优化值O(M)
+        '''
         if m <= 0 or n <= 0:
             return 0
         if m == 1 or n == 1:
@@ -22,28 +27,44 @@ class Solution:
         一个机器人位于一个 m x n 网格的左上角 （起始点在下图中标记为“Start” ）。
         机器人每次只能向下或者向右移动一步。机器人试图达到网格的右下角（在下图中标记为“Finish”）。
         问总共有多少条不同的路径。现在考虑网格中有障碍物。那么从左上角到右下角将会有多少条不同的路径"""
+        '''动态规划，时间复杂度：O(MN)，空间复杂度：O(MN) => O(M)
+        m*n大小的数组res用来保存到每一个格子的路径
+        某个格子只能由它上边一个格子或者左边一个的移动而来，即res(i,j) = res(i-1,j) + res(i,j-1)
+        如果恰好是障碍物res(i,j)=0，遍历所有格子，最后返回右下角的值就是答案
+        空间复杂度可以优化值O(M)
+        '''
         if not obstacleGrid or not obstacleGrid[0] or obstacleGrid[0][0] == 1 or obstacleGrid[-1][-1] == 1:
             return 0
         n = len(obstacleGrid)
         m = len(obstacleGrid[0])
-        res = [[0] * m for _ in range(n)]
+        # res = [[0] * m for _ in range(n)]
+        tmp = [0] * m
+        tmp[0] = 1
         for i in range(n):
-
             for j in range(m):
-                if i == 0 and j == 0:
-                    res[i][j] = 1
-                elif i == 0 and obstacleGrid[i][j] == 0:
-                    res[i][j] = res[i][j - 1]
-                elif j == 0 and obstacleGrid[i][j] == 0:
-                    res[i][j] = res[i - 1][j]
-                elif obstacleGrid[i][j] == 0:
-                    res[i][j] = res[i - 1][j] + res[i][j - 1]
-        return res[-1][-1]
+                # if i == 0 and j == 0:
+                #     res[i][j] = 1
+                # elif i == 0 and obstacleGrid[i][j] == 0:
+                #     res[i][j] = res[i][j - 1]
+                # elif j == 0 and obstacleGrid[i][j] == 0:
+                #     res[i][j] = res[i - 1][j]
+                # elif obstacleGrid[i][j] == 0:
+                #     res[i][j] = res[i - 1][j] + res[i][j - 1]
+                if obstacleGrid[i][j] == 1:
+                    tmp[j] = 0
+                    continue
+                if j > 0 and obstacleGrid[i][j-1] == 0:
+                    tmp[j] += tmp[j-1]
+        # return res[-1][-1]
+        return tmp[-1]
 
     def minPathSum(self, grid: List[List[int]]) -> int:
         """64. 最小路径和
         给定一个包含非负整数的 m x n 网格 grid ，请找出一条从左上角到右下角的路径，使得路径上的数字总和为最小。
         说明：每次只能向下或者向右移动一步"""
+        '''动态规划，时间复杂度：O(MN)，空间复杂度：O(MN) => O(M)
+        res(i,j) = grid(i,j) + min(res(i-1,j), res(i,j-1))
+        '''
         n = len(grid)
         m = len(grid[0])
         for i in range(n):
@@ -64,6 +85,7 @@ class Solution:
         给定一个由 整数 组成的 非空 数组所表示的非负整数，在该数的基础上加一。
         最高位数字存放在数组的首位， 数组中每个元素只存储单个数字。
         你可以假设除了整数 0 之外，这个整数不会以零开头"""
+        '''数字等于9时需要进位，否则直接加1返回'''
         n = len(digits)
         for i in range(n - 1, -1, -1):
             if digits[i] != 9:
@@ -76,9 +98,13 @@ class Solution:
         return digits
 
     def setZeroes(self, matrix: list) -> None:
-        """73.矩阵置零
+        """73. 矩阵置零
         给定一个 m x n 的矩阵，如果一个元素为 0，则将其所在行和列的所有元素都设为 0。请使用原地算法。
         """
+        '''时间复杂度：O(mn)，空间复杂度：O(m+n)
+        分别用两个集合记录要置零的 行 和 列
+        第一次遍历记录，第二次遍历置零
+        '''
         if matrix and matrix[0]:
             n, m = len(matrix), len(matrix[0])
             zerosRow = set()
@@ -95,9 +121,10 @@ class Solution:
                         matrix[i][j] = 0
 
     def searchMatrix(self, matrix: list, target: int) -> bool:
-        """74.搜索二维数组
+        """74. 搜索二维数组
         编写一个高效的算法来判断m x n矩阵中，是否存在一个目标值。该矩阵具有如下特性：
         每行中的整数从左到右按升序排列。每行的第一个整数大于前一行的最后一个整数。"""
+        '''二分查找，时间复杂度：O(log(mn))，空间复杂度：O(1)'''
         n = len(matrix)
         if n == 0:
             return False
@@ -116,6 +143,9 @@ class Solution:
         """75.颜色分类
         给定一个包含红色、白色和蓝色，一共n 个元素的数组，原地对它们进行排序，使得相同颜色的元素相邻，并按照红色、白色、蓝色顺序排列。
         此题中，我们使用整数 0、1 和 2 分别表示红色、白色和蓝色。"""
+        '''双指针，时间复杂度：O(n)，空间复杂度：O(1)
+        left 之前是确定的0，right之后是确定的2，curr遍历数组
+        '''
         left, right = 0, len(nums) - 1
         curr = 0
         while curr <= right:
@@ -132,6 +162,9 @@ class Solution:
     def subsets(self, nums: list) -> list:
         """78.子集
         给定一组不含重复元素的整数数组 nums，返回该数组所有可能的子集（幂集）"""
+        '''回溯算法，O(n×2^n)，空间复杂度：O(n)
+        因为不含重复元素可以不排序，子集的大小可能是0（空集）size（全集）因此需要遍历0-size
+        '''
         size = len(nums)
         if size == 0:
             return [[]]
@@ -148,14 +181,16 @@ class Solution:
 
         path = []
         res = []
-        for depth in range(size + 1):
+        for depth in range(size + 1):       # 子集的大小可能是0（空集）size（全集）因此需要遍历
             _dfs(0, path)
         return res
 
     def exist(self, board: list, word: str) -> bool:
-        """79.单词搜索
+        """79. 单词搜索
         给定一个二维网格和一个单词，找出该单词是否存在于网格中。单词必须按照字母顺序，通过相邻的单元格内的字母构成，
         其中“相邻”单元格是那些水平相邻或垂直相邻的单元格。同一个单元格内的字母不允许被重复使用。"""
+        '''深度优先搜寻
+        https://leetcode-cn.com/problems/word-search/solution/dan-ci-sou-suo-by-leetcode-solution/'''
         directions = {(0, 1), (0, -1), (1, 0), (-1, 0)}
         n = len(board)
         if n == 0:
@@ -188,6 +223,9 @@ class Solution:
         """80. 删除排序数组中的重复项 II
         给定一个增序排列数组 nums ，你需要在 原地 删除重复出现的元素，使得每个元素最多出现两次，返回移除后数组的新长度。
         不要使用额外的数组空间，你必须在 原地 修改输入数组 并在使用 O(1) 额外空间的条件下完成。"""
+        '''双指针，时间复杂度：O(n)，空间复杂度：O(1)
+        双指针font, nex，分别用于遍历数组和确定去重后位置，count计数不大于2
+        '''
         nex, count = 1, 1
         for font in range(1, len(nums)):
             if nums[font] == nums[font - 1]:
